@@ -28,6 +28,7 @@
     <string name="label_document_issuing_state">Issuing State</string>
     <string name="label_document_nationality">Nationality</string>
     <string name="label_passport">Passport</string>
+    <string name="label_id_card">Id Card</string>
     <string name="label_not_available">NA</string>
 
     <string name="name">%1s %2s</string>

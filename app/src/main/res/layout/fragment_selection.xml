@@ -119,14 +119,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:checked="true"
-                android:text="Kimlik" />
+                android:text="@string/label_id_card" />
 
             <RadioButton
                 android:id="@+id/button_id_passport"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Pasaport" />
+                android:text="@string/label_passport" />
 
         </RadioGroup>
 
@@ -145,7 +145,8 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
-                android:src="@drawable/id_card_sample" />
+                android:src="@drawable/id_card_sample"
+                tools:ignore="ContentDescription" />
         </LinearLayout>
 
         <LinearLayout
@@ -165,7 +166,8 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="260dp"
-                android:src="@drawable/passport_sample" />
+                android:src="@drawable/passport_sample"
+                tools:ignore="ContentDescription" />
         </LinearLayout>
 
     </LinearLayout>
