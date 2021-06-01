@@ -11,11 +11,12 @@
 
     <string name="nfc_title">Cihazı kart/pasaport üzerine bırakın ve hareket ettirmeyin</string>
 
-    <string name="label_document_number">Doküman Numarası</string>
+    <string name="label_document_number">Belge Numarası</string>
     <string name="label_document_expiry">Geçerlilik tarihi</string>
     <string name="label_document_issued">Veriliş tarihi</string>
-    <string name="label_document_issuing_state">Verildiği yer</string>
+    <string name="label_document_issuing_state">Ülke</string>
     <string name="label_document_nationality">Uyruk</string>
+    <string name="label_card">Kart</string>
     <string name="label_passport">Pasaport</string>
     <string name="label_id_card">Kimlik</string>
 
@@ -30,14 +31,13 @@
     <string name="warning_no_nfc">NFC özelliği bulunamadı</string>
     <string name="warning_enable_nfc">NFC aktif edilmelidir</string>
     <string name="label_additional_information">Ek bilgiler</string>
-    <string name="label_not_available">Bulunamadı</string>
     <string name="prompt_document_expiration">Bitiş Tarihi (yymmdd)</string>
     <string name="prompt_document_date_of_birth">Doğum tarihi (yymmdd)</string>
 
     <string name="label_additional_information_dob">Doğum tarihi</string>
     <string name="label_additional_information_other_names">Diğer isimler</string>
-    <string name="label_additional_information_permanent_address">Kalıcı Adres</string>
-    <string name="label_additional_information_personal_number">Kişi Numarası</string>
+    <string name="label_additional_information_permanent_address">Adres</string>
+    <string name="label_additional_information_personal_number">Kimlik Numarası</string>
     <string name="label_additional_information_personal_summary">Kişi Özet</string>
     <string name="label_additional_information_place_of_birth">Doğum yeri</string>
     <string name="label_additional_information_profession">Meslek</string>
@@ -57,13 +57,13 @@
     <string name="label_certificate_serial_number">Seri No</string>
     <string name="label_certificate_signature_algorithm">Imza algoristması</string>
     <string name="label_certificate_thumbprint">Sertifika parmak izi</string>
-    <string name="label_certificate_subject">Bağlı olduğu yer</string>
+    <string name="label_certificate_subject">Sertifika bilgisi</string>
     <string name="label_certificate_valid_from">Geçerlilik tarihi başlangıç</string>
     <string name="label_certificate_valid_to">Geçerlilik tarihi bitiş</string>
 
     <string name="warning_cla_not_supported">Doküman okunamadı. Kard CLA desteklemiyor.</string>
-    <string name="document_valid_passport">Geçerli Kart</string>
-    <string name="document_invalid_passport">Geçersiz Kart</string>
+    <string name="document_valid_card">Geçerli Kart</string>
+    <string name="document_invalid_card">Geçersiz Kart</string>
     <string name="document_unknown_passport_title">Bilinmeyen Kart</string>
     <string name="document_csca_failure">CSCA bilgisi alınamadı.</string>
     <string name="document_document_failure">Kart bilgileri alınamadı</string>
@@ -77,7 +77,7 @@
     <string name="label_certificate_public_key_algorithm">Public key algoritması</string>
     <string name="label_additional_document_information_date_of_issue">Yetki tarihi</string>
     <string name="label_authentication">Doğrulama</string>
-    <string name="label_additional_document_information_endorsements_and_observations">Gözlem</string>
+    <string name="label_additional_document_information_endorsements_and_observations">Diğer</string>
     <string name="label_additional_document_information_date_and_time_of_personalization">Tarih</string>
     <string name="label_additional_information_custody">İl</string>
     <string name="label_additional_information_other_valid_td_numbers">Diğer numaralar</string>

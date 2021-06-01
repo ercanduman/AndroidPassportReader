@@ -57,7 +57,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/iconWarning"
                     android:layout_alignParentTop="true"
-                    android:text="@string/document_valid_passport"
+                    android:text="@string/document_valid_card"
                     android:textColor="@color/white"
                     style="@style/Text.SubHead"
                     />
@@ -495,7 +495,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:padding="@dimen/margin_tiny"
-                            android:text="@string/label_passport"
+                            android:text="@string/label_card"
                             android:layout_weight="1"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
                     </TableRow>
