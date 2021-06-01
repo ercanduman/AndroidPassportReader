@@ -30,34 +30,33 @@ class SelectionActivity : AppCompatActivity(), SelectionFragment.SelectionFragme
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_camera)
+        setContentView(R.layout.activity_framelayout_container)
         if (null == savedInstanceState) {
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, SelectionFragment(), TAG_SELECTION_FRAGMENT)
-                    .commit()
+                .replace(R.id.container, SelectionFragment(), TAG_SELECTION_FRAGMENT)
+                .commit()
         }
     }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        var data = data
-        if (data == null) {
-            data = Intent()
-        }
+        val intent = data ?: Intent()
         when (requestCode) {
             REQUEST_MRZ -> {
                 when (resultCode) {
                     Activity.RESULT_OK -> {
-                        onPassportRead(data.getSerializableExtra(IntentData.KEY_MRZ_INFO) as MRZInfo)
+                        onPassportRead(intent.getSerializableExtra(IntentData.KEY_MRZ_INFO) as MRZInfo)
                     }
                     Activity.RESULT_CANCELED -> {
-                        val fragmentByTag = supportFragmentManager.findFragmentByTag(TAG_SELECTION_FRAGMENT)
+                        val fragmentByTag =
+                            supportFragmentManager.findFragmentByTag(TAG_SELECTION_FRAGMENT)
                         if (fragmentByTag is SelectionFragment) {
                             fragmentByTag.selectManualToggle()
                         }
                     }
                     else -> {
-                        val fragmentByTag = supportFragmentManager.findFragmentByTag(TAG_SELECTION_FRAGMENT)
+                        val fragmentByTag =
+                            supportFragmentManager.findFragmentByTag(TAG_SELECTION_FRAGMENT)
                         if (fragmentByTag is SelectionFragment) {
                             fragmentByTag.selectManualToggle()
                         }
@@ -71,7 +70,7 @@ class SelectionActivity : AppCompatActivity(), SelectionFragment.SelectionFragme
                 }
             }
         }
-        super.onActivityResult(requestCode, resultCode, data)
+        super.onActivityResult(requestCode, resultCode, intent)
     }
 
     private fun test() {
@@ -93,7 +92,6 @@ class SelectionActivity : AppCompatActivity(), SelectionFragment.SelectionFragme
         val intent = Intent(this, CameraActivity::class.java)
         startActivityForResult(intent, REQUEST_MRZ)
     }
-
 
 
     companion object {
