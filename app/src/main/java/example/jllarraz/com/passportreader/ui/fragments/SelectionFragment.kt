@@ -36,7 +36,6 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), Validator.Valid
                 }
             }
 
-
             buttonReadNfc.setOnClickListener { validateFields() }
 
             mValidator = Validator(this)
@@ -45,6 +44,16 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), Validator.Valid
             mValidator!!.put(documentNumber, DocumentNumberRule())
             mValidator!!.put(documentExpiration, DateRule())
             mValidator!!.put(documentDateOfBirth, DateRule())
+
+            buttonIdCard.setOnClickListener {
+                layoutIdCard.visibility = View.VISIBLE
+                layoutIdPassport.visibility = View.GONE
+            }
+
+            buttonIdPassport.setOnClickListener {
+                layoutIdCard.visibility = View.GONE
+                layoutIdPassport.visibility = View.VISIBLE
+            }
         }
     }
 
