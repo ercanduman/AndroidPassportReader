@@ -215,22 +215,22 @@ class PassportDetailsFragment : Fragment(R.layout.fragment_passport_details) {
             if (verificationStatus!!.ca == VerificationStatus.Verdict.SUCCEEDED && verificationStatus.ht == VerificationStatus.Verdict.SUCCEEDED && verificationStatus.cs == VerificationStatus.Verdict.SUCCEEDED) {
                 //Everything is fine
                 colorCard = android.R.color.holo_green_light
-                title = getString(R.string.document_valid_passport)
+                title = getString(R.string.document_valid_card)
                 message = getString(R.string.document_chip_content_success)
             } else if (verificationStatus.ca == VerificationStatus.Verdict.FAILED) {
                 //Chip authentication failed
                 colorCard = android.R.color.holo_red_light
-                title = getString(R.string.document_invalid_passport)
+                title = getString(R.string.document_invalid_card)
                 message = getString(R.string.document_chip_failure)
             } else if (verificationStatus.ht == VerificationStatus.Verdict.FAILED) {
                 //Document information
                 colorCard = android.R.color.holo_red_light
-                title = getString(R.string.document_invalid_passport)
+                title = getString(R.string.document_invalid_card)
                 message = getString(R.string.document_document_failure)
             } else if (verificationStatus.cs == VerificationStatus.Verdict.FAILED) {
                 //CSCA information
                 colorCard = android.R.color.holo_red_light
-                title = getString(R.string.document_invalid_passport)
+                title = getString(R.string.document_invalid_card)
                 message = getString(R.string.document_csca_failure)
             } else {
                 //Unknown
@@ -242,17 +242,17 @@ class PassportDetailsFragment : Fragment(R.layout.fragment_passport_details) {
             if (verificationStatus!!.ht == VerificationStatus.Verdict.SUCCEEDED) {
                 //Document information is fine
                 colorCard = android.R.color.holo_green_light
-                title = getString(R.string.document_valid_passport)
+                title = getString(R.string.document_valid_card)
                 message = getString(R.string.document_content_success)
             } else if (verificationStatus.ht == VerificationStatus.Verdict.FAILED) {
                 //Document information
                 colorCard = android.R.color.holo_red_light
-                title = getString(R.string.document_invalid_passport)
+                title = getString(R.string.document_invalid_card)
                 message = getString(R.string.document_document_failure)
             } else if (verificationStatus.cs == VerificationStatus.Verdict.FAILED) {
                 //CSCA information
                 colorCard = android.R.color.holo_red_light
-                title = getString(R.string.document_invalid_passport)
+                title = getString(R.string.document_invalid_card)
                 message = getString(R.string.document_csca_failure)
             } else {
                 //Unknown

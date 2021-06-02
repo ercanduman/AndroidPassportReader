@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pasaport ve Kart Okuyucu</string>
+    <string name="camera_error">Cihaz Camera2 API desteklemiyor.</string>
+    <string name="permission_camera_rationale">Yazı tanıma için kamera izni gerekmektedir.</string>
+    <string name="no_camera_permission">Kamera izni verilmediği için devam edilemez.</string>
+
+    <string name="status_bar_ocr">Doküman Numarası: %1s Doğum Tarihi: %2s Geçerlilik tarihi: %3s</string>
+    <string name="status_bar_success">OCR Algılandı. - Gerekli zaman: %2dms</string>
+    <string name="status_bar_failure">OCR Okuma başarısız - Gerekli zaman: %1d ms</string>
+
+    <string name="nfc_title">Cihazı kart/pasaport üzerine bırakın ve hareket ettirmeyin</string>
+
+    <string name="label_document_number">Belge Numarası</string>
+    <string name="label_document_expiry">Geçerlilik tarihi</string>
+    <string name="label_document_issued">Veriliş tarihi</string>
+    <string name="label_document_issuing_state">Ülke</string>
+    <string name="label_document_nationality">Uyruk</string>
+    <string name="label_card">Kart</string>
+    <string name="label_passport">Pasaport</string>
+    <string name="label_id_card">Kimlik</string>
+
+    <string name="selection_title">Veri Girişi</string>
+    <string name="selection_manual">Elle</string>
+    <string name="selection_automatic">Otomatik</string>
+    <string name="prompt_document_number">Doküman Numarası</string>
+
+    <string name="read_nfc">NFC Kart Okuma</string>
+    <string name="error_validation_date">Tarih formatı yanlış</string>
+    <string name="error_validation_document_number">Doküman numarası yanlış</string>
+    <string name="warning_no_nfc">NFC özelliği bulunamadı</string>
+    <string name="warning_enable_nfc">NFC aktif edilmelidir</string>
+    <string name="label_additional_information">Ek bilgiler</string>
+    <string name="prompt_document_expiration">Bitiş Tarihi (yymmdd)</string>
+    <string name="prompt_document_date_of_birth">Doğum tarihi (yymmdd)</string>
+
+    <string name="label_additional_information_dob">Doğum tarihi</string>
+    <string name="label_additional_information_other_names">Diğer isimler</string>
+    <string name="label_additional_information_permanent_address">Adres</string>
+    <string name="label_additional_information_personal_number">Kimlik Numarası</string>
+    <string name="label_additional_information_personal_summary">Kişi Özet</string>
+    <string name="label_additional_information_place_of_birth">Doğum yeri</string>
+    <string name="label_additional_information_profession">Meslek</string>
+    <string name="label_additional_information_telephone">Telefon</string>
+    <string name="label_additional_information_title">Ünvan</string>
+    <string name="label_authentication_active">Aktif</string>
+    <string name="label_authentication_document_signing">Doküman Imzası</string>
+    <string name="label_additional_document_information">Ek Doküman bilgileri</string>
+    <string name="label_additional_document_information_image_front">Ön resim</string>
+    <string name="label_additional_document_information_image_rear">Arke resim</string>
+    <string name="label_additional_document_information_issuing_authority">Yetkili makam</string>
+    <string name="label_additional_document_information_names_of_other_persons">Diğer kişiler</string>
+    <string name="label_additional_document_information_personalization_system_serial_number">Sistem seri No</string>
+    <string name="label_additional_document_information_tax_or_exit_requirements">Vergi ve çıkış durumu</string>
+    <string name="label_document_signing_certificate">Doküman imza sertifikası</string>
+    <string name="label_country_signing_certificate">Ülke imza sertifikası</string>
+    <string name="label_certificate_serial_number">Seri No</string>
+    <string name="label_certificate_signature_algorithm">Imza algoristması</string>
+    <string name="label_certificate_thumbprint">Sertifika parmak izi</string>
+    <string name="label_certificate_subject">Sertifika bilgisi</string>
+    <string name="label_certificate_valid_from">Geçerlilik tarihi başlangıç</string>
+    <string name="label_certificate_valid_to">Geçerlilik tarihi bitiş</string>
+
+    <string name="warning_cla_not_supported">Doküman okunamadı. Kard CLA desteklemiyor.</string>
+    <string name="document_valid_card">Geçerli Kart</string>
+    <string name="document_invalid_card">Geçersiz Kart</string>
+    <string name="document_unknown_passport_title">Bilinmeyen Kart</string>
+    <string name="document_csca_failure">CSCA bilgisi alınamadı.</string>
+    <string name="document_document_failure">Kart bilgileri alınamadı</string>
+    <string name="document_chip_failure">Kart chip geçersiz</string>
+    <string name="document_content_success">Kart bilgileri doğrulandı</string>
+    <string name="document_chip_content_success">Kart ve chip bilgileri doğrulandı</string>
+    <string name="document_unknown_passport_message">Kart yetkilendirmesi başarısız.</string>
+    <string name="warning_authentication_failed">Kart okuma başarız! Lütfen tekrar taratın ya da bilgileri elle girin.</string>
+
+    <string name="label_certificate_issuer">Kurum</string>
+    <string name="label_certificate_public_key_algorithm">Public key algoritması</string>
+    <string name="label_additional_document_information_date_of_issue">Yetki tarihi</string>
+    <string name="label_authentication">Doğrulama</string>
+    <string name="label_additional_document_information_endorsements_and_observations">Diğer</string>
+    <string name="label_additional_document_information_date_and_time_of_personalization">Tarih</string>
+    <string name="label_additional_information_custody">İl</string>
+    <string name="label_additional_information_other_valid_td_numbers">Diğer numaralar</string>
+    <string name="doc_number">Belge Numara: %1s</string>
+    <string name="doc_dob">Doğrum tarihi: %1s</string>
+    <string name="doc_expiry">Geçerlilik tarihi: %1s</string>
+
+    <string name="id_card_details">Kart Numarası (İlk satırdaki "TUR" kısmından sonraki 9 hane, örn: A12Z34567)
+        \n"Doğum tarihi (İkinci satırdaki ilk 6 rakam. örn: 930529)"
+        \nSon Kullanım tarihi (İkinci satırda "TUR" kısmından önceki 6 rakam örn: 240727)" </string>
+    <string name="id_passport_details">Pasaport Numarası (İkinci satırdaki 9 haneli yazı, örn: XN5004216)
+        \n"Doğum tarihi (Orta kısımdaki 6 rakam. örn: 880504)"
+        \nSon Kullanım tarihi (Sağdaki 6 rakam örn: 230915)" </string>
+</resources>

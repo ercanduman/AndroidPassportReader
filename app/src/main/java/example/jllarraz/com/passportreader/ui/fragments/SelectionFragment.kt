@@ -2,28 +2,19 @@ package example.jllarraz.com.passportreader.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.os.Environment
-import android.util.Log
 import android.view.View
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.mobsandgeeks.saripaar.ValidationError
 import com.mobsandgeeks.saripaar.Validator
 import example.jllarraz.com.passportreader.R
 import example.jllarraz.com.passportreader.databinding.FragmentSelectionBinding
-import example.jllarraz.com.passportreader.network.MasterListService
 import example.jllarraz.com.passportreader.ui.validators.DateRule
 import example.jllarraz.com.passportreader.ui.validators.DocumentNumberRule
-import example.jllarraz.com.passportreader.utils.KeyStoreUtils
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import net.sf.scuba.data.Gender
 import org.jmrtd.lds.icao.MRZInfo
 import java.security.Security
-import java.security.cert.Certificate
 
 class SelectionFragment : Fragment(R.layout.fragment_selection), Validator.ValidationListener {
 
@@ -38,21 +29,12 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), Validator.Valid
 
         binding.apply {
             radioButtonDataEntry.setOnCheckedChangeListener { _, checkedId ->
-                when (checkedId) {
-                    R.id.radioButtonManual -> {
-                        layoutManual.visibility = View.VISIBLE
-                        layoutAutomatic.visibility = View.GONE
-                    }
-                    R.id.radioButtonOcr -> {
-                        layoutManual.visibility = View.GONE
-                        layoutAutomatic.visibility = View.VISIBLE
-                        if (selectionFragmentListener != null) {
-                            selectionFragmentListener!!.onMrzRequest()
-                        }
+                if (checkedId == R.id.radioButtonOcr) {
+                    if (selectionFragmentListener != null) {
+                        selectionFragmentListener!!.onMrzRequest()
                     }
                 }
             }
-
 
             buttonReadNfc.setOnClickListener { validateFields() }
 
@@ -63,15 +45,14 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), Validator.Valid
             mValidator!!.put(documentExpiration, DateRule())
             mValidator!!.put(documentDateOfBirth, DateRule())
 
-            buttonDownloadCSCA.setOnClickListener { requireDownloadCSCA() }
-            buttonDeleteCSCA.setOnClickListener {
-                val subscribe = cleanCSCAFolder()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { _ ->
-                            Toast.makeText(requireContext(), "CSCA Folder deleted", Toast.LENGTH_SHORT).show()
-                        }
-                disposable.add(subscribe)
+            buttonIdCard.setOnClickListener {
+                layoutIdCard.visibility = View.VISIBLE
+                layoutIdPassport.visibility = View.GONE
+            }
+
+            buttonIdPassport.setOnClickListener {
+                layoutIdCard.visibility = View.GONE
+                layoutIdPassport.visibility = View.VISIBLE
             }
         }
     }
@@ -171,100 +152,7 @@ class SelectionFragment : Fragment(R.layout.fragment_selection), Validator.Valid
         fun onMrzRequest()
     }
 
-
-    ////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //        Download Master List Spanish Certificates
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////
-
-
-    private fun requireDownloadCSCA() {
-        val downloadsFolder = requireContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!
-        val keyStore = KeyStoreUtils().readKeystoreFromFile(downloadsFolder)
-        if (keyStore == null || keyStore.aliases().toList().isNullOrEmpty()) {
-            //No certificates downloaded
-            downloadSpanishMasterList()
-        } else {
-            //Certificates in the keystore
-            val dialog = AlertDialog.Builder(requireContext())
-                    .setTitle(R.string.keystore_not_empty_title)
-                    .setMessage(R.string.keystore_not_empty_message)
-                    .setPositiveButton(android.R.string.ok) { _, _ ->
-                        val subscribe = cleanCSCAFolder()
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe { _ ->
-                                    downloadSpanishMasterList()
-                                }
-                        disposable.add(subscribe)
-                    }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .create()
-            dialog.show()
-        }
-    }
-
-    private fun cleanCSCAFolder(): Single<Boolean> {
-        return Single.fromCallable {
-            try {
-                val downloadsFolder = requireContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!
-                val listFiles = downloadsFolder.listFiles()
-                listFiles?.forEach { tempFile ->
-                    tempFile.delete()
-                }
-                downloadsFolder.listFiles()
-                true
-            } catch (e: Exception) {
-                false
-            }
-        }
-    }
-
-    private fun downloadSpanishMasterList() {
-        val masterListService = MasterListService(requireContext(), "https://www.dnielectronico.es/")
-        val subscribe = masterListService.getSpanishMasterList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { certificates ->
-                            saveCertificates(certificates)
-                        },
-                        { error ->
-                            Toast.makeText(requireContext(), "No certificates has been download $error", Toast.LENGTH_SHORT).show()
-                        }
-                )
-        disposable.add(subscribe)
-    }
-
-    private fun saveCertificates(certificates: ArrayList<Certificate>) {
-        val subscribe = Single.fromCallable {
-            try {
-                val size = certificates.size
-                Log.d(TAG, "Number of certificates: $size")
-                val map = KeyStoreUtils().toMap(certificates)
-                val downloadsFolder = requireContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!
-                KeyStoreUtils().toKeyStoreFile(map, outputDir = downloadsFolder)
-                size
-            } catch (e: Exception) {
-                e.printStackTrace()
-                -1
-            }
-        }.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { result ->
-                    if (result > 0) {
-                        Toast.makeText(requireContext(), "Certificates Downloaded: $result", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(requireContext(), "No certificates has been download", Toast.LENGTH_SHORT).show()
-                    }
-                }
-        disposable.add(subscribe)
-    }
-
     companion object {
-        private const val TAG = "SelectionFragment"
-
         init {
             Security.insertProviderAt(org.spongycastle.jce.provider.BouncyCastleProvider(), 1)
         }
