@@ -37,10 +37,9 @@ abstract class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsR
     private var cameraZoom: Zoom.VariableZoom? = null
     private var zoomProgress: Int = 0
 
-
     private var mDist: Float = 0.toFloat()
 
-    var configuration = CameraConfiguration(
+    private var configuration = CameraConfiguration(
             // A full configuration
             // ...
             focusMode = firstAvailable(autoFocus()),
@@ -73,9 +72,7 @@ abstract class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsR
             fotoapparat = Fotoapparat
                     .with(context?.applicationContext!!)
                     .into(cameraView)
-                    .frameProcessor(
-                            callbackFrameProcessor
-                    )
+                    .frameProcessor(callbackFrameProcessor)
                     .lensPosition { lensPosition }
                     .build()
 
@@ -116,7 +113,6 @@ abstract class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsR
         return Math.sqrt((x * x + y * y).toDouble()).toFloat()
     }
 
-
     protected fun setFlash(isEnable: Boolean) {
         configuration = configuration.copy(flashMode = if (isEnable) torch() else off())
         fotoapparat?.updateConfiguration(configuration)
@@ -147,7 +143,7 @@ abstract class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsR
         if (!hasCameraPermission) {
             fotoapparat?.stop()
         }
-        fotoapparat = null;
+        fotoapparat = null
         super.onPause()
     }
 
@@ -295,8 +291,7 @@ abstract class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsR
      *
      * @param text The message to show
      */
-    private fun showToast(text: String) {
-        val activity = activity
+    protected fun showToast(text: String) {
         activity?.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
     }
 
@@ -315,7 +310,7 @@ abstract class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsR
 
         companion object {
 
-            private val ARG_MESSAGE = "message"
+            private const val ARG_MESSAGE = "message"
 
             fun newInstance(message: String): ErrorDialog {
                 val dialog = ErrorDialog()
@@ -328,24 +323,23 @@ abstract class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsR
 
     }
 
-    fun getRotation(context: Context, lensPosition: LensPosition = LensPosition.Back): Int {
+    private fun getRotation(context: Context, lensPosition: LensPosition = LensPosition.Back): Int {
 
-        var facingCamera = 0
-        when (lensPosition) {
+        val facingCamera: Int = when (lensPosition) {
             LensPosition.Front -> {
-                facingCamera = CameraCharacteristics.LENS_FACING_FRONT
+                CameraCharacteristics.LENS_FACING_FRONT
             }
             LensPosition.Back -> {
-                facingCamera = CameraCharacteristics.LENS_FACING_BACK
+                CameraCharacteristics.LENS_FACING_BACK
             }
             LensPosition.External -> {
-                facingCamera = CameraCharacteristics.LENS_FACING_EXTERNAL
+                CameraCharacteristics.LENS_FACING_EXTERNAL
             }
         }
 
         val manager = context.getSystemService(Context.CAMERA_SERVICE) as android.hardware.camera2.CameraManager
         try {
-            for (cameraId in manager.getCameraIdList()) {
+            for (cameraId in manager.cameraIdList) {
                 val characteristics = manager.getCameraCharacteristics(cameraId)
                 val facing = characteristics.get(CameraCharacteristics.LENS_FACING)
                 if (facing != null && facing != facingCamera) {

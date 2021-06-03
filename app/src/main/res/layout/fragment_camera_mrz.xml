@@ -16,15 +16,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fragment_decoder_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#000">
+    android:layout_height="match_parent">
 
     <io.fotoapparat.view.CameraView
         android:id="@+id/camera_preview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
-    <TextView android:id="@+id/status_view_top"
+    <TextView
+        android:id="@+id/status_view_top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/status_view_bottom"
@@ -32,11 +32,10 @@
         android:background="#0000"
         android:text=""
         android:textColor="@color/status_text"
-        android:textSize="14sp"
-        android:autoLink="web"
-        android:clickable="true" />
+        android:textSize="14sp" />
 
-    <TextView android:id="@+id/status_view_bottom"
+    <TextView
+        android:id="@+id/status_view_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -44,8 +43,6 @@
         android:background="#0000"
         android:text=""
         android:textColor="@color/status_text"
-        android:textSize="14sp"
-        android:autoLink="web"
-        android:clickable="true" />
+        android:textSize="14sp" />
 
 </RelativeLayout>

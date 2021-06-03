@@ -29,7 +29,6 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import com.google.mlkit.vision.text.Text
 import example.jllarraz.com.passportreader.R
 import example.jllarraz.com.passportreader.databinding.FragmentCameraMrzBinding
@@ -55,7 +54,7 @@ class CameraMLKitFragment : CameraFragment() {
     private var cameraMLKitCallback: CameraMLKitCallback? = null
     private var frameProcessor: OcrMrzDetectorProcessor? = null
     private val mHandler = Handler(Looper.getMainLooper())
-    var disposable = CompositeDisposable()
+    private var disposable = CompositeDisposable()
 
     private var isDecoding = false
 
@@ -83,8 +82,8 @@ class CameraMLKitFragment : CameraFragment() {
     }
 
     override fun onDestroyView() {
-        if (!disposable.isDisposed()) {
-            disposable.dispose();
+        if (!disposable.isDisposed) {
+            disposable.dispose()
         }
         super.onDestroyView()
     }
@@ -111,40 +110,37 @@ class CameraMLKitFragment : CameraFragment() {
     ////////////////////////////////////////////////////////////////////////////////////////
 
 
-    override val callbackFrameProcessor: io.fotoapparat.preview.FrameProcessor
-        get() {
-            return object : FrameProcessor {
-                override fun process(frame: Frame) {
-                    try {
-                        if (!isDecoding) {
-                            isDecoding = true
+    override val callbackFrameProcessor: FrameProcessor = object : FrameProcessor {
+        override fun process(frame: Frame) {
+            try {
+                if (!isDecoding) {
+                    isDecoding = true
 
-                            if (frameProcessor != null) {
-                                val subscribe = Single.fromCallable {
-                                    frameProcessor?.process(
-                                            frame = frame,
-                                            rotation = rotation,
-                                            graphicOverlay = null,
-                                            true,
-                                            listener = ocrListener
-                                    )
-                                }.subscribeOn(Schedulers.io())
-                                        .observeOn(AndroidSchedulers.mainThread())
-                                        .subscribe({ success ->
-                                            //Don't do anything
-                                        }, { error ->
-                                            isDecoding = false
-                                            Toast.makeText(requireContext(), "Error: $error", Toast.LENGTH_SHORT).show()
-                                        })
-                                disposable.add(subscribe)
-                            }
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+                    if (frameProcessor != null) {
+                        val subscribe = Single.fromCallable {
+                            frameProcessor?.process(
+                                    frame = frame,
+                                    rotation = rotation,
+                                    graphicOverlay = null,
+                                    true,
+                                    listener = ocrListener
+                            )
+                        }.subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe({ success -> // success
+                                    //Don't do anything
+                                }, { error ->
+                                    isDecoding = false
+                                    showToast("Error: $error")
+                                })
+                        disposable.add(subscribe)
                     }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -164,10 +160,11 @@ class CameraMLKitFragment : CameraFragment() {
     override val requestedPermissions: ArrayList<String>
         get() {
             //Nothing as we don't need any other permission than camera and that's managed in the parent fragment
-            return ArrayList<String>()
+            return ArrayList()
         }
 
     override fun onRequestPermissionsResult(permissionsDenied: ArrayList<String>, permissionsGranted: ArrayList<String>) {
+        showToast("Permission granted for $permissionsGranted And denied for $permissionsDenied ")
     }
 
 
@@ -178,7 +175,7 @@ class CameraMLKitFragment : CameraFragment() {
     ////////////////////////////////////////////////////////////////////////////////////////
 
     //OCR listener
-    val ocrListener = object : VisionProcessorBase.Listener<com.google.mlkit.vision.text.Text> {
+    val ocrListener = object : VisionProcessorBase.Listener<Text> {
         override fun onSuccess(
                 results: Text,
                 frameMetadata: FrameMetadata?,
@@ -189,11 +186,7 @@ class CameraMLKitFragment : CameraFragment() {
             if (!isAdded) {
                 return
             }
-            OcrUtils.processOcr(
-                    results = results,
-                    timeRequired = timeRequired,
-                    callback = mrzListener
-            )
+            OcrUtils.processOcr(results = results, timeRequired = timeRequired, callback = mrzListener)
         }
 
         override fun onCanceled(timeRequired: Long) {
@@ -213,7 +206,6 @@ class CameraMLKitFragment : CameraFragment() {
             if (!isAdded) {
                 return
             }
-
         }
 
     }
@@ -251,7 +243,7 @@ class CameraMLKitFragment : CameraFragment() {
                     binding.apply {
                         statusViewBottom.text = getString(R.string.status_bar_failure, timeRequired)
                         statusViewBottom.setTextColor(Color.RED)
-                        statusViewTop.text = ""
+                        statusViewTop.text = getString(R.string.status_bar_success)
                     }
                 } catch (e: IllegalStateException) {
                     //The fragment is destroyed
@@ -274,7 +266,7 @@ class CameraMLKitFragment : CameraFragment() {
     }
 
 
-    protected val textProcessor: OcrMrzDetectorProcessor
+    private val textProcessor: OcrMrzDetectorProcessor
         get() = OcrMrzDetectorProcessor()
 
 
@@ -314,31 +306,20 @@ class CameraMLKitFragment : CameraFragment() {
     ////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Shows a [Toast] on the UI thread.
-     *
-     * @param text The message to show
-     */
-    private fun showToast(text: String) {
-        val activity = activity
-        activity?.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
-    }
-
-    /**
      * Shows an error message dialog.
      */
     class ErrorDialog : androidx.fragment.app.DialogFragment() {
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val activity = activity
             return AlertDialog.Builder(activity)
                     .setMessage(requireArguments().getString(ARG_MESSAGE))
-                    .setPositiveButton(android.R.string.ok) { dialogInterface, i -> activity!!.finish() }
+                    .setPositiveButton(android.R.string.ok) { _, _ -> requireActivity().finish() }
                     .create()
         }
 
         companion object {
 
-            private val ARG_MESSAGE = "message"
+            private const val ARG_MESSAGE = "message"
 
             fun newInstance(message: String): ErrorDialog {
                 val dialog = ErrorDialog()
@@ -386,7 +367,7 @@ class CameraMLKitFragment : CameraFragment() {
     }
 
     companion object {
-        private val REQUEST_CAMERA_PERMISSION = 1
-        private val FRAGMENT_DIALOG = "CameraMLKitFragment"
+        private const val REQUEST_CAMERA_PERMISSION = 1
+        private const val FRAGMENT_DIALOG = "CameraMLKitFragment"
     }
 }
