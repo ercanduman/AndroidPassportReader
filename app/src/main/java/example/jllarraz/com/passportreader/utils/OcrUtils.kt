@@ -51,51 +51,67 @@ object OcrUtils {
     }
 
     private fun readIdCardText(fullRead: String, callback: MRZCallback, timeRequired: Long) {
-        var fullRead1 = fullRead
-        val matcherIdCardDocNumber = Pattern.compile(REGEX_ID_CARD_DOC_NUMBER).matcher(fullRead1)
-        val matcherIdCardDates = Pattern.compile(REGEX_ID_CARD_DATES).matcher(fullRead1)
+        var idCardText = fullRead
+        val matcherIdCardDocNumber = Pattern.compile(REGEX_ID_CARD_DOC_NUMBER).matcher(idCardText)
+        val matcherIdCardDates = Pattern.compile(REGEX_ID_CARD_DATES).matcher(idCardText)
         if (!matcherIdCardDocNumber.find() || !matcherIdCardDates.find()) {
             callback.onMRZReadFailure(timeRequired)
             return
         }
 
-        fullRead1 = fullRead1.substring(fullRead1.indexOf(TYPE_ID_CARD))
-        var documentNumber: String = fullRead1.substring(5, 14)
+        idCardText = idCardText.substring(idCardText.indexOf(TYPE_ID_CARD))
+        var documentNumber: String = idCardText.substring(5, 14)
         documentNumber = documentNumber.replace("O", "0")
 
         val dates: String = matcherIdCardDates.group(0) ?: ""
-        val dateOfBirth: String = dates.substring(0, 6)
-        val dateOfExpiry: String = dates.substring(8, 14)
+        var dateOfBirth: String = dates.substring(0, 6)
+        var dateOfExpiry: String = dates.substring(8, 14)
         Log.d(TAG, "Scanned Text Buffer ID Card ->>>> Doc Number: $documentNumber DateOfBirth: $dateOfBirth DateOfExpiry: $dateOfExpiry")
-        Log.d(TAG, "Scanned Text Buffer UPDATED ->>>> DateOfBirth: ${cleanDate(dateOfBirth)} DateOfExpiry: ${cleanDate(dateOfExpiry)}")
+        dateOfBirth = isDateValid(dateOfBirth, callback, timeRequired)
+        dateOfExpiry = isDateValid(dateOfExpiry, callback, timeRequired)
+        Log.d(TAG, "Scanned Text Buffer CLEANED Dates ->>>> DateOfBirth: $dateOfBirth DateOfExpiry: $dateOfExpiry")
 
         val mrzInfo = createDummyMrz(documentNumber, dateOfBirth, dateOfExpiry)
         callback.onMRZRead(mrzInfo, timeRequired)
     }
 
     private fun readPassportText(fullRead: String, callback: MRZCallback, timeRequired: Long) {
-        var fullRead1 = fullRead
-        val matcherDocumentNumber = Pattern.compile(REGEX_PASSPORT_DOC_NUMBER).matcher(fullRead1)
-        val matcherPassportDates = Pattern.compile(REGEX_PASSPORT_DATES).matcher(fullRead1)
+        var passportText = fullRead
+        val matcherDocumentNumber = Pattern.compile(REGEX_PASSPORT_DOC_NUMBER).matcher(passportText)
+        val matcherPassportDates = Pattern.compile(REGEX_PASSPORT_DATES).matcher(passportText)
         if (matcherDocumentNumber.find().not() || matcherPassportDates.find().not()) {
             callback.onMRZReadFailure(timeRequired)
             return
         }
-        fullRead1 = fullRead1.substring(fullRead1.indexOf(TYPE_PASSPORT))
-        var documentNumber: String = fullRead1.substring(0, 9)
+        passportText = passportText.substring(passportText.indexOf(TYPE_PASSPORT))
+        var documentNumber: String = passportText.substring(0, 9)
         documentNumber = documentNumber.replace("O", "0")
 
         val dates: String = matcherPassportDates.group(0) ?: ""
-        val dateOfBirth = dates.substring(13, 19)
-        val dateOfExpiry = dates.substring(21, 27)
+        var dateOfBirth = dates.substring(13, 19)
+        var dateOfExpiry = dates.substring(21, 27)
         Log.d(TAG, "Scanned Text Buffer ID Card ->>>> Doc Number: $documentNumber DateOfBirth: $dateOfBirth DateOfExpiry: $dateOfExpiry")
-        Log.d(TAG, "Scanned Text Buffer UPDATED ->>>> DateOfBirth: ${cleanDate(dateOfBirth)} DateOfExpiry: ${cleanDate(dateOfExpiry)}")
+        dateOfBirth = isDateValid(dateOfBirth, callback, timeRequired)
+        dateOfExpiry = isDateValid(dateOfExpiry, callback, timeRequired)
+        Log.d(TAG, "Scanned Text Buffer CLEANED Dates ->>>> DateOfBirth: $dateOfBirth DateOfExpiry: $dateOfExpiry")
 
         val mrzInfo = createDummyMrz(documentNumber, dateOfBirth, dateOfExpiry)
         callback.onMRZRead(mrzInfo, timeRequired)
     }
 
-    private fun createDummyMrz(documentNumber: String, dateOfBirthDay: String, expirationDate: String): MRZInfo {
+    private fun isDateValid(dateOfExpiry: String, callback: MRZCallback, timeRequired: Long): String {
+        var validDate = dateOfExpiry
+        try {
+            validDate = cleanDate(validDate)
+            validDate.toInt()
+        } catch (e: NumberFormatException) {
+            e.printStackTrace()
+            callback.onMRZReadFailure(timeRequired)
+        }
+        return validDate
+    }
+
+    private fun createDummyMrz(documentNumber: String, dateOfBirth: String, dateOfExpiry: String): MRZInfo {
         return MRZInfo(
                 MRZ_DOCUMENT_CODE,
                 NOT_APPLICABLE,
@@ -103,9 +119,9 @@ object OcrUtils {
                 NOT_APPLICABLE,
                 documentNumber,
                 NOT_APPLICABLE,
-                dateOfBirthDay,
+                dateOfBirth,
                 Gender.UNSPECIFIED,
-                expirationDate,
+                dateOfExpiry,
                 ""
         )
     }
