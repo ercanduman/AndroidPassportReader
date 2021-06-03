@@ -12,7 +12,7 @@ You can use the example images stored under `examples` to test the application o
 This project is based in the information and tutorials found in
 
 - https://developer.android.com/reference/android/hardware/camera2/package-summary
-- https://github.com/tananaev/passport-reader/blob/master/app/build.gradle
+- https://github.com/alimertozdemir/EPassportNFCReader
 - https://techblog.bozho.net/how-to-read-your-passport-with-android/
 - https://github.com/mercuriete/android-mrz-reader
 - https://en.wikipedia.org/wiki/Machine-readable_passport

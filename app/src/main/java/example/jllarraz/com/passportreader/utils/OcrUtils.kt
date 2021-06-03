@@ -72,7 +72,11 @@ object OcrUtils {
         Log.d(TAG, "Scanned Text Buffer CLEANED Dates ->>>> DateOfBirth: $dateOfBirth DateOfExpiry: $dateOfExpiry")
 
         val mrzInfo = createDummyMrz(documentNumber, dateOfBirth, dateOfExpiry)
-        callback.onMRZRead(mrzInfo, timeRequired)
+        if (isMrzValid(mrzInfo)) {
+            callback.onMRZRead(mrzInfo, timeRequired)
+        } else {
+            callback.onMRZReadFailure(timeRequired)
+        }
     }
 
     private fun readPassportText(fullRead: String, callback: MRZCallback, timeRequired: Long) {
@@ -96,7 +100,11 @@ object OcrUtils {
         Log.d(TAG, "Scanned Text Buffer CLEANED Dates ->>>> DateOfBirth: $dateOfBirth DateOfExpiry: $dateOfExpiry")
 
         val mrzInfo = createDummyMrz(documentNumber, dateOfBirth, dateOfExpiry)
-        callback.onMRZRead(mrzInfo, timeRequired)
+        if (isMrzValid(mrzInfo)) {
+            callback.onMRZRead(mrzInfo, timeRequired)
+        } else {
+            callback.onMRZReadFailure(timeRequired)
+        }
     }
 
     private fun isDateValid(dateOfExpiry: String, callback: MRZCallback, timeRequired: Long): String {
@@ -135,6 +143,12 @@ object OcrUtils {
         tempDate = tempDate.replace("S".toRegex(), "5")
         tempDate = tempDate.replace("G".toRegex(), "6")
         return tempDate
+    }
+
+    private fun isMrzValid(mrzInfo: MRZInfo): Boolean {
+        return mrzInfo.documentNumber != null && mrzInfo.documentNumber.length >= 9
+                && mrzInfo.dateOfBirth != null && mrzInfo.dateOfBirth.length == 6
+                && mrzInfo.dateOfExpiry != null && mrzInfo.dateOfExpiry.length == 6
     }
 
     interface MRZCallback {
