@@ -16,12 +16,19 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fragment_decoder_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/grey_2">
 
     <io.fotoapparat.view.CameraView
         android:id="@+id/camera_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <View
+        android:layout_width="630dp"
+        android:layout_height="400dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/border_background" />
 
     <TextView
         android:id="@+id/status_view_top"
@@ -30,7 +37,7 @@
         android:layout_above="@+id/status_view_bottom"
         android:layout_margin="14dp"
         android:background="#0000"
-        android:text=""
+        android:text="@string/status_bar_success"
         android:textColor="@color/status_text"
         android:textSize="14sp" />
 
@@ -41,8 +48,7 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="14dp"
         android:background="#0000"
-        android:text=""
+        android:text="@string/status_bar_failure"
         android:textColor="@color/status_text"
         android:textSize="14sp" />
-
 </RelativeLayout>
