@@ -12,6 +12,7 @@ object OcrUtils {
     private const val TYPE_PASSPORT = "P<"
     private const val TYPE_ID_CARD = "I<"
     private const val NOT_APPLICABLE = "N/A"
+    private const val MRZ_DOCUMENT_CODE = "P"
 
     private const val REGEX_ID_CARD_DOC_NUMBER = "([A|C|I]<[A-Z0-9]{1})([A-Z]{3})([A-Z0-9<]{9}<)"
     private const val REGEX_ID_CARD_DATES = "([0-9]{6})([0-9])([M|F|X|<]{1})([0-9]{6})([0-9]{1})([A-Z]{3})([A-Z0-9<]{11})([0-9])"
@@ -38,37 +39,10 @@ object OcrUtils {
 
         when {
             fullRead.indexOf(TYPE_ID_CARD) > 0 -> { // Read ID card
-                val matcherIdCard = Pattern.compile(ID_CARD_TD_1_LINE_1_REGEX).matcher(fullRead)
-                val matcherIdCardLine2 = Pattern.compile(ID_CARD_TD_1_LINE_2_REGEX).matcher(fullRead)
-                if (!matcherIdCard.find() || !matcherIdCardLine2.find()) {
-                    callback.onMRZReadFailure(timeRequired)
-                    return
-                }
-                val line2: String = matcherIdCardLine2.group(0) ?: ""
-
-                fullRead = fullRead.substring(fullRead.indexOf(TYPE_ID_CARD))
-                var documentNumber: String = fullRead.substring(5, 14)
-                documentNumber = documentNumber.replace("O", "0")
-                val dateOfBirthDay: String = line2.substring(0, 6)
-                val expiryDate: String = line2.substring(8, 14)
-                Log.d(TAG, "Scanned Text Buffer ID Card ->>>> Doc Number: $documentNumber DateOfBirth: $dateOfBirthDay ExpiryDate: $expiryDate")
-
-                val mrzInfo = createDummyMrz(documentNumber, dateOfBirthDay, expiryDate)
-                callback.onMRZRead(mrzInfo, timeRequired)
-
+                readIdCardText(fullRead, callback, timeRequired)
             }
             fullRead.indexOf(TYPE_PASSPORT) > 0 -> { // Read Passport
-
-                val matcherPassport = Pattern.compile(PASSPORT_TD_3_LINE_1_REGEX).matcher(fullRead)
-                val matcherPassportLine2 = Pattern.compile(PASSPORT_TD_3_LINE_2_REGEX).matcher(fullRead)
-                if (matcherPassport.find().not() || matcherPassportLine2.find().not()) {
-                    callback.onMRZReadFailure(timeRequired)
-                    return
-                }
-                val line2: String = matcherPassportLine2.group(0) ?: ""
-
-                val mrzInfo = createDummyMrz(documentNumber, dateOfBirthDay, expirationDate)
-                callback.onMRZRead(mrzInfo, timeRequired)
+                readPassportText(fullRead, callback, timeRequired)
             }
             else -> { //No success
                 callback.onMRZReadFailure(timeRequired)
@@ -76,18 +50,63 @@ object OcrUtils {
         }
     }
 
+    private fun readIdCardText(fullRead: String, callback: MRZCallback, timeRequired: Long) {
+        var fullRead1 = fullRead
+        val matcherIdCardDocNumber = Pattern.compile(REGEX_ID_CARD_DOC_NUMBER).matcher(fullRead1)
+        val matcherIdCardDates = Pattern.compile(REGEX_ID_CARD_DATES).matcher(fullRead1)
+        if (!matcherIdCardDocNumber.find() || !matcherIdCardDates.find()) {
+            callback.onMRZReadFailure(timeRequired)
+            return
+        }
+
+        fullRead1 = fullRead1.substring(fullRead1.indexOf(TYPE_ID_CARD))
+        var documentNumber: String = fullRead1.substring(5, 14)
+        documentNumber = documentNumber.replace("O", "0")
+
+        val dates: String = matcherIdCardDates.group(0) ?: ""
+        val dateOfBirth: String = dates.substring(0, 6)
+        val dateOfExpiry: String = dates.substring(8, 14)
+        Log.d(TAG, "Scanned Text Buffer ID Card ->>>> Doc Number: $documentNumber DateOfBirth: $dateOfBirth DateOfExpiry: $dateOfExpiry")
+        Log.d(TAG, "Scanned Text Buffer UPDATED ->>>> DateOfBirth: ${cleanDate(dateOfBirth)} DateOfExpiry: ${cleanDate(dateOfExpiry)}")
+
+        val mrzInfo = createDummyMrz(documentNumber, dateOfBirth, dateOfExpiry)
+        callback.onMRZRead(mrzInfo, timeRequired)
+    }
+
+    private fun readPassportText(fullRead: String, callback: MRZCallback, timeRequired: Long) {
+        var fullRead1 = fullRead
+        val matcherDocumentNumber = Pattern.compile(REGEX_PASSPORT_DOC_NUMBER).matcher(fullRead1)
+        val matcherPassportDates = Pattern.compile(REGEX_PASSPORT_DATES).matcher(fullRead1)
+        if (matcherDocumentNumber.find().not() || matcherPassportDates.find().not()) {
+            callback.onMRZReadFailure(timeRequired)
+            return
+        }
+        fullRead1 = fullRead1.substring(fullRead1.indexOf(TYPE_PASSPORT))
+        var documentNumber: String = fullRead1.substring(0, 9)
+        documentNumber = documentNumber.replace("O", "0")
+
+        val dates: String = matcherPassportDates.group(0) ?: ""
+        val dateOfBirth = dates.substring(13, 19)
+        val dateOfExpiry = dates.substring(21, 27)
+        Log.d(TAG, "Scanned Text Buffer ID Card ->>>> Doc Number: $documentNumber DateOfBirth: $dateOfBirth DateOfExpiry: $dateOfExpiry")
+        Log.d(TAG, "Scanned Text Buffer UPDATED ->>>> DateOfBirth: ${cleanDate(dateOfBirth)} DateOfExpiry: ${cleanDate(dateOfExpiry)}")
+
+        val mrzInfo = createDummyMrz(documentNumber, dateOfBirth, dateOfExpiry)
+        callback.onMRZRead(mrzInfo, timeRequired)
+    }
+
     private fun createDummyMrz(documentNumber: String, dateOfBirthDay: String, expirationDate: String): MRZInfo {
         return MRZInfo(
-                documentCode,
+                MRZ_DOCUMENT_CODE,
                 NOT_APPLICABLE,
                 NOT_APPLICABLE,
                 NOT_APPLICABLE,
                 documentNumber,
                 NOT_APPLICABLE,
-                cleanDate(dateOfBirthDay),
+                dateOfBirthDay,
                 Gender.UNSPECIFIED,
-                cleanDate(expirationDate),
-                NOT_APPLICABLE
+                expirationDate,
+                ""
         )
     }
 
