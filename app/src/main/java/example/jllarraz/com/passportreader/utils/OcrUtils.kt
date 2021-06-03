@@ -11,12 +11,13 @@ object OcrUtils {
 
     private const val TYPE_PASSPORT = "P<"
     private const val TYPE_ID_CARD = "I<"
+    private const val NOT_APPLICABLE = "N/A"
 
-    private const val ID_CARD_TD_1_LINE_1_REGEX = "([A|C|I]<[A-Z0-9]{1})([A-Z]{3})([A-Z0-9<]{9}<)"
-    private const val ID_CARD_TD_1_LINE_2_REGEX = "([0-9]{6})([0-9]{1})([M|F|X|<]{1})([0-9]{6})([0-9]{1})([A-Z]{3})([A-Z0-9<]{11})([0-9]{1})"
+    private const val REGEX_ID_CARD_DOC_NUMBER = "([A|C|I]<[A-Z0-9]{1})([A-Z]{3})([A-Z0-9<]{9}<)"
+    private const val REGEX_ID_CARD_DATES = "([0-9]{6})([0-9])([M|F|X|<]{1})([0-9]{6})([0-9]{1})([A-Z]{3})([A-Z0-9<]{11})([0-9])"
 
-    private const val PASSPORT_TD_3_LINE_1_REGEX = "(P[A-Z0-9<]{1})([A-Z]{3})([A-Z0-9<]{39})"
-    private const val PASSPORT_TD_3_LINE_2_REGEX = "([A-Z0-9<]{9})([0-9]{1})([A-Z]{3})([0-9]{6})([0-9]{1})([M|F|X|<]{1})([0-9]{6})([0-9]{1})([A-Z0-9<]{14})([0-9]{1})([0-9]{1})"
+    private const val REGEX_PASSPORT_DOC_NUMBER = "(P[A-Z0-9<]{1})([A-Z]{3})([A-Z0-9<]{39})"
+    private const val REGEX_PASSPORT_DATES = "([A-Z0-9<]{9})([0-9]{1})([A-Z]{3})([0-9]{6})([0-9]{1})([M|F|X|<]{1})([0-9]{6})([0-9]{1})([A-Z0-9<]{14})([0-9]{1})([0-9]{1})"
 
     fun processOcr(results: Text, timeRequired: Long, callback: MRZCallback) {
         var fullRead = ""
@@ -34,7 +35,6 @@ object OcrUtils {
         }
         fullRead = fullRead.replace("--", "").uppercase()
         Log.d(TAG, "Read: $fullRead")
-
 
         when {
             fullRead.indexOf(TYPE_ID_CARD) > 0 -> { // Read ID card
@@ -78,16 +78,16 @@ object OcrUtils {
 
     private fun createDummyMrz(documentNumber: String, dateOfBirthDay: String, expirationDate: String): MRZInfo {
         return MRZInfo(
-                "P",
-                "ESP",
-                "DUMMY",
-                "DUMMY",
+                documentCode,
+                NOT_APPLICABLE,
+                NOT_APPLICABLE,
+                NOT_APPLICABLE,
                 documentNumber,
-                "ESP",
-                dateOfBirthDay,
+                NOT_APPLICABLE,
+                cleanDate(dateOfBirthDay),
                 Gender.UNSPECIFIED,
-                expirationDate,
-                ""
+                cleanDate(expirationDate),
+                NOT_APPLICABLE
         )
     }
 
