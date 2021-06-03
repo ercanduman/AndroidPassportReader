@@ -6,7 +6,7 @@
     <string name="no_camera_permission">Kamera izni verilmediği için devam edilemez.</string>
 
     <string name="status_bar_ocr">Doküman Numarası: %1s Doğum Tarihi: %2s Geçerlilik tarihi: %3s</string>
-    <string name="status_bar_success">OCR Algılandı. - Gerekli zaman: %2dms</string>
+    <string name="status_bar_success">OCR Algılandı.</string>
     <string name="status_bar_failure">OCR Okuma başarısız - Gerekli zaman: %1d ms</string>
 
     <string name="nfc_title">Cihazı kart/pasaport üzerine bırakın ve hareket ettirmeyin</string>
