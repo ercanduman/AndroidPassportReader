@@ -26,16 +26,14 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.mlkit.vision.text.Text
 import example.jllarraz.com.passportreader.R
 import example.jllarraz.com.passportreader.databinding.FragmentCameraMrzBinding
-import example.jllarraz.com.passportreader.mlkit.FrameMetadata
-import example.jllarraz.com.passportreader.mlkit.GraphicOverlay
-import example.jllarraz.com.passportreader.mlkit.OcrMrzDetectorProcessor
-import example.jllarraz.com.passportreader.mlkit.VisionProcessorBase
+import example.jllarraz.com.passportreader.mlkit.*
 import example.jllarraz.com.passportreader.utils.MRZUtil
 import example.jllarraz.com.passportreader.utils.OcrUtils
 import io.fotoapparat.preview.Frame
@@ -127,7 +125,7 @@ class CameraMLKitFragment : CameraFragment() {
                             )
                         }.subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe({ _ -> // success
+                                .subscribe({ success -> // success
                                     //Don't do anything
                                 }, { error ->
                                     isDecoding = false
@@ -186,7 +184,6 @@ class CameraMLKitFragment : CameraFragment() {
             if (!isAdded) {
                 return
             }
-
             OcrUtils.processOcr(results = results, timeRequired = timeRequired, callback = mrzListener)
         }
 

@@ -37,10 +37,9 @@ abstract class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsR
     private var cameraZoom: Zoom.VariableZoom? = null
     private var zoomProgress: Int = 0
 
-
     private var mDist: Float = 0.toFloat()
 
-    var configuration = CameraConfiguration(
+    private var configuration = CameraConfiguration(
             // A full configuration
             // ...
             focusMode = firstAvailable(autoFocus()),
@@ -113,7 +112,6 @@ abstract class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsR
 
         return Math.sqrt((x * x + y * y).toDouble()).toFloat()
     }
-
 
     protected fun setFlash(isEnable: Boolean) {
         configuration = configuration.copy(flashMode = if (isEnable) torch() else off())
@@ -312,7 +310,7 @@ abstract class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsR
 
         companion object {
 
-            private val ARG_MESSAGE = "message"
+            private const val ARG_MESSAGE = "message"
 
             fun newInstance(message: String): ErrorDialog {
                 val dialog = ErrorDialog()

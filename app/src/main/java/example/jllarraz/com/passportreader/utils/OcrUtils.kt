@@ -7,19 +7,18 @@ import org.jmrtd.lds.icao.MRZInfo
 import java.util.regex.Pattern
 
 object OcrUtils {
+    private const val TAG = "OcrUtils"
 
-    private val TAG = OcrUtils::class.java.simpleName
+    private const val TYPE_PASSPORT = "P<"
+    private const val TYPE_ID_CARD = "I<"
 
-    private val REGEX_OLD_PASSPORT = "(?<documentNumber>[A-Z0-9<]{9})(?<checkDigitDocumentNumber>[0-9ILDSOG]{1})(?<nationality>[A-Z<]{3})(?<dateOfBirth>[0-9ILDSOG]{6})(?<checkDigitDateOfBirth>[0-9ILDSOG]{1})(?<sex>[FM<]){1}(?<expirationDate>[0-9ILDSOG]{6})(?<checkDigitExpiration>[0-9ILDSOG]{1})"
-    private val REGEX_OLD_PASSPORT_CLEAN = "(?<documentNumber>[A-Z0-9<]{9})(?<checkDigitDocumentNumber>[0-9]{1})(?<nationality>[A-Z<]{3})(?<dateOfBirth>[0-9]{6})(?<checkDigitDateOfBirth>[0-9]{1})(?<sex>[FM<]){1}(?<expirationDate>[0-9]{6})(?<checkDigitExpiration>[0-9]{1})"
-    private val REGEX_IP_PASSPORT_LINE_1 = "\\bIP[A-Z<]{3}[A-Z0-9<]{9}[0-9]{1}"
-    private val REGEX_IP_PASSPORT_LINE_2 = "[0-9]{6}[0-9]{1}[FM<]{1}[0-9]{6}[0-9]{1}[A-Z<]{3}"
+    private const val ID_CARD_TD_1_LINE_1_REGEX = "([A|C|I]<[A-Z0-9]{1})([A-Z]{3})([A-Z0-9<]{9}<)"
+    private const val ID_CARD_TD_1_LINE_2_REGEX = "([0-9]{6})([0-9]{1})([M|F|X|<]{1})([0-9]{6})([0-9]{1})([A-Z]{3})([A-Z0-9<]{11})([0-9]{1})"
 
-    fun processOcr(
-        results: Text,
-        timeRequired: Long,
-        callback: MRZCallback
-    ){
+    private const val PASSPORT_TD_3_LINE_1_REGEX = "(P[A-Z0-9<]{1})([A-Z]{3})([A-Z0-9<]{39})"
+    private const val PASSPORT_TD_3_LINE_2_REGEX = "([A-Z0-9<]{9})([0-9]{1})([A-Z]{3})([0-9]{6})([0-9]{1})([M|F|X|<]{1})([0-9]{6})([0-9]{1})([A-Z0-9<]{14})([0-9]{1})([0-9]{1})"
+
+    fun processOcr(results: Text, timeRequired: Long, callback: MRZCallback) {
         var fullRead = ""
         val blocks = results.textBlocks
         for (i in blocks.indices) {
@@ -33,46 +32,45 @@ object OcrUtils {
             temp = temp.replace("\r".toRegex(), "").replace("\n".toRegex(), "").replace("\t".toRegex(), "").replace(" ", "")
             fullRead += "$temp-"
         }
-        fullRead = fullRead.toUpperCase()
+        fullRead = fullRead.replace("--", "").uppercase()
         Log.d(TAG, "Read: $fullRead")
-        val patternLineOldPassportType = Pattern.compile(REGEX_OLD_PASSPORT)
-        val matcherLineOldPassportType = patternLineOldPassportType.matcher(fullRead)
 
 
+        when {
+            fullRead.indexOf(TYPE_ID_CARD) > 0 -> { // Read ID card
+                val matcherIdCard = Pattern.compile(ID_CARD_TD_1_LINE_1_REGEX).matcher(fullRead)
+                val matcherIdCardLine2 = Pattern.compile(ID_CARD_TD_1_LINE_2_REGEX).matcher(fullRead)
+                if (!matcherIdCard.find() || !matcherIdCardLine2.find()) {
+                    callback.onMRZReadFailure(timeRequired)
+                    return
+                }
+                val line2: String = matcherIdCardLine2.group(0) ?: ""
 
-        if (matcherLineOldPassportType.find()) {
-            //Old passport format
-            val line2 = matcherLineOldPassportType.group(0)
-            var documentNumber = matcherLineOldPassportType.group(1)
-            val dateOfBirthDay = cleanDate(matcherLineOldPassportType.group(4))
-            val expirationDate = cleanDate(matcherLineOldPassportType.group(7))
+                fullRead = fullRead.substring(fullRead.indexOf(TYPE_ID_CARD))
+                var documentNumber: String = fullRead.substring(5, 14)
+                documentNumber = documentNumber.replace("O", "0")
+                val dateOfBirthDay: String = line2.substring(0, 6)
+                val expiryDate: String = line2.substring(8, 14)
+                Log.d(TAG, "Scanned Text Buffer ID Card ->>>> Doc Number: $documentNumber DateOfBirth: $dateOfBirthDay ExpiryDate: $expiryDate")
 
-            //As O and 0 and really similar most of the countries just removed them from the passport, so for accuracy I am formatting it
-            documentNumber = documentNumber.replace("O".toRegex(), "0")
+                val mrzInfo = createDummyMrz(documentNumber, dateOfBirthDay, expiryDate)
+                callback.onMRZRead(mrzInfo, timeRequired)
 
+            }
+            fullRead.indexOf(TYPE_PASSPORT) > 0 -> { // Read Passport
 
-            val mrzInfo = createDummyMrz(documentNumber, dateOfBirthDay, expirationDate)
-            callback.onMRZRead(mrzInfo, timeRequired)
-        } else {
-            //Try with the new IP passport type
-            val patternLineIPassportTypeLine1 = Pattern.compile(REGEX_IP_PASSPORT_LINE_1)
-            val matcherLineIPassportTypeLine1 = patternLineIPassportTypeLine1.matcher(fullRead)
-            val patternLineIPassportTypeLine2 = Pattern.compile(REGEX_IP_PASSPORT_LINE_2)
-            val matcherLineIPassportTypeLine2 = patternLineIPassportTypeLine2.matcher(fullRead)
-            if (matcherLineIPassportTypeLine1.find() && matcherLineIPassportTypeLine2.find()) {
-                val line1 = matcherLineIPassportTypeLine1.group(0)
-                val line2 = matcherLineIPassportTypeLine2.group(0)
-                var documentNumber = line1.substring(5, 14)
-                val dateOfBirthDay = line2.substring(0, 6)
-                val expirationDate = line2.substring(8, 14)
-
-                //As O and 0 and really similar most of the countries just removed them from the passport, so for accuracy I am formatting it
-                documentNumber = documentNumber.replace("O".toRegex(), "0")
+                val matcherPassport = Pattern.compile(PASSPORT_TD_3_LINE_1_REGEX).matcher(fullRead)
+                val matcherPassportLine2 = Pattern.compile(PASSPORT_TD_3_LINE_2_REGEX).matcher(fullRead)
+                if (matcherPassport.find().not() || matcherPassportLine2.find().not()) {
+                    callback.onMRZReadFailure(timeRequired)
+                    return
+                }
+                val line2: String = matcherPassportLine2.group(0) ?: ""
 
                 val mrzInfo = createDummyMrz(documentNumber, dateOfBirthDay, expirationDate)
                 callback.onMRZRead(mrzInfo, timeRequired)
-            } else {
-                //No success
+            }
+            else -> { //No success
                 callback.onMRZReadFailure(timeRequired)
             }
         }
@@ -80,20 +78,20 @@ object OcrUtils {
 
     private fun createDummyMrz(documentNumber: String, dateOfBirthDay: String, expirationDate: String): MRZInfo {
         return MRZInfo(
-            "P",
-            "ESP",
-            "DUMMY",
-            "DUMMY",
-            documentNumber,
-            "ESP",
-            dateOfBirthDay,
-            Gender.MALE,
-            expirationDate,
-            ""
+                "P",
+                "ESP",
+                "DUMMY",
+                "DUMMY",
+                documentNumber,
+                "ESP",
+                dateOfBirthDay,
+                Gender.UNSPECIFIED,
+                expirationDate,
+                ""
         )
     }
 
-    private fun cleanDate(date:String):String{
+    private fun cleanDate(date: String): String {
         var tempDate = date
         tempDate = tempDate.replace("I".toRegex(), "1")
         tempDate = tempDate.replace("L".toRegex(), "1")

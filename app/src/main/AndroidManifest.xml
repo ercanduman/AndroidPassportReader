@@ -24,26 +24,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data
-            android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="ocr" />
-
-        <activity
-            android:name=".ui.activities.CameraActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="landscape"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
-            android:windowSoftInputMode="stateAlwaysHidden">
-
-        </activity>
-
-        <activity
-            android:name=".ui.activities.NfcActivity"
-            android:keepScreenOn="true"
-            android:screenOrientation="nosensor">
-
-        </activity>
-
+        
         <activity
             android:name=".ui.activities.SelectionActivity"
             android:screenOrientation="nosensor">
@@ -51,10 +32,23 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
 
+        <activity
+            android:name=".ui.activities.CameraActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
+            android:windowSoftInputMode="stateAlwaysHidden" />
 
+        <activity
+            android:name=".ui.activities.NfcActivity"
+            android:keepScreenOn="true"
+            android:screenOrientation="nosensor" />
+
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="ocr" />
     </application>
 
 </manifest>
