@@ -3,18 +3,8 @@
     <item>
         <shape android:shape="rectangle">
             <stroke
-                android:width="2dp"
-                android:color="#fff"
-                android:dashWidth="10dp"
-                android:dashGap="10dp" />
-        </shape>
-    </item>
-
-    <item android:top="70dp">
-        <shape android:shape="line">
-            <stroke
                 android:width="3dp"
-                android:color="#7257A4"
+                android:color="#fff"
                 android:dashWidth="10dp"
                 android:dashGap="10dp" />
         </shape>
@@ -29,7 +19,8 @@
                 android:dashGap="10dp" />
         </shape>
     </item>
-    <item android:top="270dp">
+
+    <item android:top="260dp">
         <shape android:shape="line">
             <stroke
                 android:width="3dp"
@@ -38,4 +29,13 @@
                 android:dashGap="10dp" />
         </shape>
     </item>
+    <!--    <item android:top="260dp">
+            <shape android:shape="line">
+                <stroke
+                    android:width="3dp"
+                    android:color="#7257A4"
+                    android:dashWidth="10dp"
+                    android:dashGap="10dp" />
+            </shape>
+        </item>-->
 </layer-list>
