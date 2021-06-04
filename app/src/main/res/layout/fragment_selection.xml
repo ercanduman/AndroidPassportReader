@@ -61,7 +61,7 @@
                     android:hint="@string/prompt_document_number"
                     android:imeOptions="actionDone"
                     android:inputType="textCapCharacters"
-                    android:maxLength="10"
+                    android:maxLength="9"
                     android:maxLines="3" />
 
             </com.google.android.material.textfield.TextInputLayout>

@@ -44,7 +44,8 @@ object OcrUtils {
             fullRead.indexOf(TYPE_ID_CARD) > 0 -> { // Read ID card
                 readIdCardText(fullRead, callback, timeRequired)
             }
-            fullRead.indexOf(TYPE_PASSPORT) > 0 -> { // Read Passport
+            fullRead.indexOf(TYPE_PASSPORT) > 0
+                    || Pattern.compile(REGEX_PASSPORT_LINE_2).matcher(fullRead).find() -> { // Read Passport
                 readPassportText(fullRead, callback, timeRequired)
             }
             else -> { //No success
@@ -90,7 +91,7 @@ object OcrUtils {
         }
 
         val dates: String = matcherPassportDates.group(0) ?: ""
-        var documentNumber = dates.substring(0, 10)
+        var documentNumber = dates.substring(0, 9)
         documentNumber = documentNumber.replace("O", "0")
         var dateOfBirth = dates.substring(13, 19)
         var dateOfExpiry = dates.substring(21, 27)
