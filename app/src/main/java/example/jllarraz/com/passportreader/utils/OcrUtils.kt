@@ -90,7 +90,7 @@ object OcrUtils {
         }
 
         val dates: String = matcherPassportDates.group(0) ?: ""
-        var documentNumber = dates.substring(1, 10)
+        var documentNumber = dates.substring(0, 10)
         documentNumber = documentNumber.replace("O", "0")
         var dateOfBirth = dates.substring(13, 19)
         var dateOfExpiry = dates.substring(21, 27)
