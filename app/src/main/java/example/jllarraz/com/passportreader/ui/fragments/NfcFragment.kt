@@ -86,27 +86,28 @@ class NfcFragment : Fragment(R.layout.fragment_nfc) {
 
             override fun onPassportRead(passport: Passport?) {
                 this@NfcFragment.onPassportRead(passport)
-
             }
 
             override fun onAccessDeniedException(exception: AccessDeniedException) {
                 Toast.makeText(context, getString(R.string.warning_authentication_failed), Toast.LENGTH_SHORT).show()
                 exception.printStackTrace()
                 this@NfcFragment.onCardException(exception)
-
             }
 
             override fun onBACDeniedException(exception: BACDeniedException) {
                 Toast.makeText(context, exception.toString(), Toast.LENGTH_SHORT).show()
+                exception.printStackTrace()
                 this@NfcFragment.onCardException(exception)
             }
 
             override fun onPACEException(exception: PACEException) {
                 Toast.makeText(context, exception.toString(), Toast.LENGTH_SHORT).show()
+                exception.printStackTrace()
                 this@NfcFragment.onCardException(exception)
             }
 
             override fun onCardException(exception: CardServiceException) {
+                exception.printStackTrace()
                 when (exception.sw.toShort()) {
                     ISO7816.SW_CLA_NOT_SUPPORTED -> {
                         Toast.makeText(context, getString(R.string.warning_cla_not_supported), Toast.LENGTH_SHORT).show()
@@ -119,6 +120,7 @@ class NfcFragment : Fragment(R.layout.fragment_nfc) {
             }
 
             override fun onGeneralException(exception: Exception?) {
+                exception?.printStackTrace()
                 Toast.makeText(context, exception!!.toString(), Toast.LENGTH_SHORT).show()
                 this@NfcFragment.onCardException(exception)
             }

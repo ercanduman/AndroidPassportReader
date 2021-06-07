@@ -46,7 +46,7 @@ class NfcActivity : androidx.fragment.app.FragmentActivity(), NfcFragment.NfcFra
                         .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0)
 
 
-        if (null == savedInstanceState) {
+        if (null == savedInstanceState && mrzInfo != null) {
             supportFragmentManager.beginTransaction()
                     .replace(R.id.container, NfcFragment.newInstance(mrzInfo!!), TAG_NFC)
                     .commit()

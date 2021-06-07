@@ -36,7 +36,6 @@ import example.jllarraz.com.passportreader.mlkit.FrameMetadata
 import example.jllarraz.com.passportreader.mlkit.GraphicOverlay
 import example.jllarraz.com.passportreader.mlkit.OcrMrzDetectorProcessor
 import example.jllarraz.com.passportreader.mlkit.VisionProcessorBase
-import example.jllarraz.com.passportreader.utils.MRZUtil
 import example.jllarraz.com.passportreader.utils.OcrUtils
 import io.fotoapparat.preview.Frame
 import io.fotoapparat.preview.FrameProcessor
@@ -68,7 +67,6 @@ class CameraMLKitFragment : CameraFragment() {
     }
 
     override fun onResume() {
-        MRZUtil.cleanStorage()
         frameProcessor = textProcessor
         super.onResume()
     }
@@ -221,7 +219,7 @@ class CameraMLKitFragment : CameraFragment() {
                 try {
                     binding.apply {
                         statusViewTop.text = getString(R.string.status_bar_ocr, mrzInfo.documentNumber, mrzInfo.dateOfBirth, mrzInfo.dateOfExpiry)
-                        statusViewBottom.text = getString(R.string.status_bar_success, timeRequired)
+                        statusViewBottom.text = getString(R.string.status_bar_success)
                         statusViewBottom.setTextColor(resources.getColor(R.color.status_text))
                         if (cameraMLKitCallback != null) {
                             cameraMLKitCallback!!.onPassportRead(mrzInfo)

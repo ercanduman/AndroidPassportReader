@@ -102,6 +102,7 @@ object OcrUtils {
 
         val mrzInfo = createDummyMrz(documentNumber, dateOfBirth, dateOfExpiry)
         if (isMrzValid(mrzInfo)) {
+            Log.d(TAG, "readPassportText: Valid MRZ")
             callback.onMRZRead(mrzInfo, timeRequired)
         } else {
             callback.onMRZReadFailure(timeRequired)
