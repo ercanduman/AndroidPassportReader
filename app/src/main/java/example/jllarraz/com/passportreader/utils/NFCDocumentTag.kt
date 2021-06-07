@@ -22,47 +22,47 @@ import java.security.Security
 
 class NFCDocumentTag {
 
-    fun handleTag(context: Context, tag: Tag, mrzInfo: MRZInfo, mrtdTrustStore: MRTDTrustStore, passportCallback: PassportCallback):Disposable{
-        return  Single.fromCallable({
+    fun handleTag(context: Context, tag: Tag, mrzInfo: MRZInfo, mrtdTrustStore: MRTDTrustStore, passportCallback: PassportCallback): Disposable {
+        return Single.fromCallable {
             var passport: Passport? = null
             var cardServiceException: Exception? = null
 
             var ps: PassportService? = null
             try {
                 val nfc = IsoDep.get(tag)
-                nfc.timeout = 5*1000 //5 seconds timeout
+                nfc.timeout = 8 * 1000 // 8 seconds timeout
                 val cs = CardService.getInstance(nfc)
                 ps = PassportService(cs, 256, 224, false, true)
                 ps.open()
 
                 val passportNFC = PassportNFC(ps, mrtdTrustStore, mrzInfo)
-                val verifySecurity = passportNFC.verifySecurity()
-                val features = passportNFC.features
+                try {
+                    passportNFC.verifySecurity()
+                } catch (e: Exception) {
+                    //Don't do anything
+                    e.printStackTrace()
+                }
 
                 passport = Passport()
-
                 passport.featureStatus = passportNFC.features
                 passport.verificationStatus = passportNFC.verificationStatus
-
-
                 passport.sodFile = passportNFC.sodFile
-
 
                 //Basic Information
                 if (passportNFC.dg1File != null) {
-                    val mrzInfo = (passportNFC.dg1File as DG1File).mrzInfo
+                    val currentInfo = (passportNFC.dg1File as DG1File).mrzInfo
                     val personDetails = PersonDetails()
-                    personDetails.dateOfBirth = mrzInfo.dateOfBirth
-                    personDetails.dateOfExpiry = mrzInfo.dateOfExpiry
-                    personDetails.documentCode = mrzInfo.documentCode
-                    personDetails.documentNumber = mrzInfo.documentNumber
-                    personDetails.optionalData1 = mrzInfo.optionalData1
-                    personDetails.optionalData2 = mrzInfo.optionalData2
-                    personDetails.issuingState = mrzInfo.issuingState
-                    personDetails.primaryIdentifier = mrzInfo.primaryIdentifier
-                    personDetails.secondaryIdentifier = mrzInfo.secondaryIdentifier
-                    personDetails.nationality = mrzInfo.nationality
-                    personDetails.gender = mrzInfo.gender
+                    personDetails.dateOfBirth = currentInfo.dateOfBirth
+                    personDetails.dateOfExpiry = currentInfo.dateOfExpiry
+                    personDetails.documentCode = currentInfo.documentCode
+                    personDetails.documentNumber = currentInfo.documentNumber
+                    personDetails.optionalData1 = currentInfo.optionalData1
+                    personDetails.optionalData2 = currentInfo.optionalData2
+                    personDetails.issuingState = currentInfo.issuingState
+                    personDetails.primaryIdentifier = currentInfo.primaryIdentifier
+                    personDetails.secondaryIdentifier = currentInfo.secondaryIdentifier
+                    personDetails.nationality = currentInfo.nationality
+                    personDetails.gender = currentInfo.gender
                     passport.personDetails = personDetails
                 }
 
@@ -76,7 +76,6 @@ class NFCDocumentTag {
                         //Don't do anything
                         e.printStackTrace()
                     }
-
                 }
 
 
@@ -91,7 +90,6 @@ class NFCDocumentTag {
                         //Don't do anything
                         e.printStackTrace()
                     }
-
                 }
 
 
@@ -193,29 +191,32 @@ class NFCDocumentTag {
             }
 
             PassportDTO(passport, cardServiceException)
-        })
-        .doOnSubscribe{
+        }.doOnSubscribe {
             passportCallback.onPassportReadStart()
-        }
-        .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe({ passportDTO ->
-            if(passportDTO.cardServiceException!=null) {
-                val cardServiceException = passportDTO.cardServiceException
-                if (cardServiceException is AccessDeniedException) {
-                    passportCallback.onAccessDeniedException(cardServiceException)
-                } else if (cardServiceException is BACDeniedException) {
-                    passportCallback.onBACDeniedException(cardServiceException)
-                } else if (cardServiceException is PACEException) {
-                    passportCallback.onPACEException(cardServiceException)
-                } else if (cardServiceException is CardServiceException) {
-                    passportCallback.onCardException(cardServiceException)
-                } else {
-                    passportCallback.onGeneralException(cardServiceException)
+        }.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { passportDTO ->
+            if (passportDTO.cardServiceException != null) {
+                when (val cardServiceException = passportDTO.cardServiceException) {
+                    is AccessDeniedException -> {
+                        passportCallback.onAccessDeniedException(cardServiceException)
+                    }
+                    is BACDeniedException -> {
+                        passportCallback.onBACDeniedException(cardServiceException)
+                    }
+                    is PACEException -> {
+                        passportCallback.onPACEException(cardServiceException)
+                    }
+                    is CardServiceException -> {
+                        passportCallback.onCardException(cardServiceException)
+                    }
+                    else -> {
+                        passportCallback.onGeneralException(cardServiceException)
+                    }
                 }
             } else {
                 passportCallback.onPassportRead(passportDTO.passport)
             }
             passportCallback.onPassportReadFinish()
-        })
+        }
     }
 
     data class PassportDTO(val passport: Passport? = null, val cardServiceException: Exception? = null)
@@ -239,7 +240,5 @@ class NFCDocumentTag {
             Security.insertProviderAt(org.spongycastle.jce.provider.BouncyCastleProvider(), 1)
         }
 
-        private val EMPTY_TRIED_BAC_ENTRY_LIST = emptyList<Any>()
-        private val EMPTY_CERTIFICATE_CHAIN = emptyList<Any>()
     }
 }

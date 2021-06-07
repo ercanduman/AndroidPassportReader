@@ -14,11 +14,14 @@ object OcrUtils {
     private const val NOT_APPLICABLE = "N/A"
     private const val MRZ_DOCUMENT_CODE = "P"
 
-    private const val REGEX_ID_CARD_DOC_NUMBER = "([A|C|I]<[A-Z0-9]{1})([A-Z]{3})([A-Z0-9<]{9}<)"
-    private const val REGEX_ID_CARD_DATES = "([0-9]{6})([0-9])([M|F|X|<]{1})([0-9]{6})([0-9]{1})([A-Z]{3})([A-Z0-9<]{11})([0-9])"
+    /**
+     * For testing REGEX following link can be visited. https://www.regextester.com/99458
+     */
+    private const val REGEX_ID_CARD_DOC_NUMBER = "([A|C|I]<[A-Z0-9])([A-Z]{3})([A-Z0-9<]{9}<)"
+    private const val REGEX_ID_CARD_DATES = "([0-9]{6})([0-9])([M|F|X|<])([0-9]{6})([0-9])([A-Z]{3})([A-Z0-9<]{11})([0-9])"
 
-    private const val REGEX_PASSPORT_DOC_NUMBER = "(P[A-Z0-9<]{1})([A-Z]{3})([A-Z0-9<]{39})"
-    private const val REGEX_PASSPORT_DATES = "([A-Z0-9<]{9})([0-9]{1})([A-Z]{3})([0-9]{6})([0-9]{1})([M|F|X|<]{1})([0-9]{6})([0-9]{1})([A-Z0-9<]{14})([0-9]{1})([0-9]{1})"
+    private const val REGEX_PASSPORT_LINE_1 = "(P<[A-Z0-9])([A-Z])([A-Z0-9<]{30})"
+    private const val REGEX_PASSPORT_LINE_2 = "([A-Z0-9<]{9})([0-9])([A-Z]{3})([0-9]{6})([0-9])([M|F|X|<])([0-9]{6})([0-9])([A-Z0-9<]{14})([0-9])([0-9])"
 
     fun processOcr(results: Text, timeRequired: Long, callback: MRZCallback) {
         var fullRead = ""
@@ -38,17 +41,16 @@ object OcrUtils {
         Log.d(TAG, "Read: $fullRead")
 
         when {
-            fullRead.indexOf(TYPE_ID_CARD) > 0 -> { // Read ID card
-                readIdCardText(fullRead, callback, timeRequired)
-            }
-            fullRead.indexOf(TYPE_PASSPORT) > 0 -> { // Read Passport
-                readPassportText(fullRead, callback, timeRequired)
-            }
-            else -> { //No success
-                callback.onMRZReadFailure(timeRequired)
-            }
+            isIdCard(fullRead) -> readIdCardText(fullRead, callback, timeRequired)
+            isPassport(fullRead) -> readPassportText(fullRead, callback, timeRequired)
+            else -> callback.onMRZReadFailure(timeRequired) //No success
         }
     }
+
+    private fun isIdCard(fullRead: String) = fullRead.indexOf(TYPE_ID_CARD) > 0
+
+    private fun isPassport(fullRead: String) = (fullRead.indexOf(TYPE_PASSPORT) > 0
+            || Pattern.compile(REGEX_PASSPORT_LINE_2).matcher(fullRead).find())
 
     private fun readIdCardText(fullRead: String, callback: MRZCallback, timeRequired: Long) {
         var idCardText = fullRead
@@ -80,18 +82,15 @@ object OcrUtils {
     }
 
     private fun readPassportText(fullRead: String, callback: MRZCallback, timeRequired: Long) {
-        var passportText = fullRead
-        val matcherDocumentNumber = Pattern.compile(REGEX_PASSPORT_DOC_NUMBER).matcher(passportText)
-        val matcherPassportDates = Pattern.compile(REGEX_PASSPORT_DATES).matcher(passportText)
-        if (matcherDocumentNumber.find().not() || matcherPassportDates.find().not()) {
+        val matcherPassportDates = Pattern.compile(REGEX_PASSPORT_LINE_2).matcher(fullRead)
+        if (matcherPassportDates.find().not()) {
             callback.onMRZReadFailure(timeRequired)
             return
         }
-        passportText = passportText.substring(passportText.indexOf(TYPE_PASSPORT))
-        var documentNumber: String = passportText.substring(0, 9)
-        documentNumber = documentNumber.replace("O", "0")
 
         val dates: String = matcherPassportDates.group(0) ?: ""
+        var documentNumber = dates.substring(0, 9)
+        documentNumber = documentNumber.replace("O", "0")
         var dateOfBirth = dates.substring(13, 19)
         var dateOfExpiry = dates.substring(21, 27)
         Log.d(TAG, "Scanned Text Buffer ID Card ->>>> Doc Number: $documentNumber DateOfBirth: $dateOfBirth DateOfExpiry: $dateOfExpiry")
@@ -101,6 +100,7 @@ object OcrUtils {
 
         val mrzInfo = createDummyMrz(documentNumber, dateOfBirth, dateOfExpiry)
         if (isMrzValid(mrzInfo)) {
+            Log.d(TAG, "readPassportText: Valid MRZ")
             callback.onMRZRead(mrzInfo, timeRequired)
         } else {
             callback.onMRZReadFailure(timeRequired)
