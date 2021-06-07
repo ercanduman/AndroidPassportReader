@@ -17,8 +17,8 @@ object OcrUtils {
     /**
      * For testing REGEX following link can be visited. https://www.regextester.com/99458
      */
-    private const val REGEX_ID_CARD_DOC_NUMBER = "([A|C|I]<[A-Z0-9]{1})([A-Z]{3})([A-Z0-9<]{9}<)"
-    private const val REGEX_ID_CARD_DATES = "([0-9]{6})([0-9])([M|F|X|<]{1})([0-9]{6})([0-9]{1})([A-Z]{3})([A-Z0-9<]{11})([0-9])"
+    private const val REGEX_ID_CARD_DOC_NUMBER = "([A|C|I]<[A-Z0-9])([A-Z]{3})([A-Z0-9<]{9}<)"
+    private const val REGEX_ID_CARD_DATES = "([0-9]{6})([0-9])([M|F|X|<])([0-9]{6})([0-9])([A-Z]{3})([A-Z0-9<]{11})([0-9])"
 
     private const val REGEX_PASSPORT_LINE_1 = "(P<[A-Z0-9])([A-Z])([A-Z0-9<]{30})"
     private const val REGEX_PASSPORT_LINE_2 = "([A-Z0-9<]{9})([0-9])([A-Z]{3})([0-9]{6})([0-9])([M|F|X|<])([0-9]{6})([0-9])([A-Z0-9<]{14})([0-9])([0-9])"
@@ -41,18 +41,16 @@ object OcrUtils {
         Log.d(TAG, "Read: $fullRead")
 
         when {
-            fullRead.indexOf(TYPE_ID_CARD) > 0 -> { // Read ID card
-                readIdCardText(fullRead, callback, timeRequired)
-            }
-            fullRead.indexOf(TYPE_PASSPORT) > 0
-                    || Pattern.compile(REGEX_PASSPORT_LINE_2).matcher(fullRead).find() -> { // Read Passport
-                readPassportText(fullRead, callback, timeRequired)
-            }
-            else -> { //No success
-                callback.onMRZReadFailure(timeRequired)
-            }
+            isIdCard(fullRead) -> readIdCardText(fullRead, callback, timeRequired)
+            isPassport(fullRead) -> readPassportText(fullRead, callback, timeRequired)
+            else -> callback.onMRZReadFailure(timeRequired) //No success
         }
     }
+
+    private fun isIdCard(fullRead: String) = fullRead.indexOf(TYPE_ID_CARD) > 0
+
+    private fun isPassport(fullRead: String) = (fullRead.indexOf(TYPE_PASSPORT) > 0
+            || Pattern.compile(REGEX_PASSPORT_LINE_2).matcher(fullRead).find())
 
     private fun readIdCardText(fullRead: String, callback: MRZCallback, timeRequired: Long) {
         var idCardText = fullRead
